@@ -8,12 +8,12 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-from apikey import OPENAI_API_KEY
-# Set your OpenAI API key
+from .apikey import OPENAI_API_KEY
+# Initialize the ChatOpenAI instance
+# For LLM# Set your OpenAI API key
 # api_key = OPENAI_API_KEY
 
-# # Initialize the ChatOpenAI instance
-# For LLM
+# 
 llm = ChatOpenAI(model="gpt-4o", temperature=0.2, api_key=OPENAI_API_KEY)
 # For LLM that returns json
 llm_json = ChatOpenAI(model="gpt-4o", temperature=0.2, api_key=OPENAI_API_KEY).bind(response_format={"type": "json_object"})
@@ -112,3 +112,30 @@ def get_selected_crews(filtered_crew, number_needed, hiring_role, detailed_desc)
     response = llm_json.invoke(messages)
     selected_crews = json.loads(response.content)
     return selected_crews
+
+def get_selected_crew_details(filtered_data, db):
+    dbname = db.split('/')[-1].split('.')[0]
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    selected_crews = {}
+    for dictionary in filtered_data:
+        for key, val in dictionary.items():
+            user = val
+            c.execute(f"SELECT * FROM \'{dbname}\' WHERE userid = \'{user['UserId']}\'")
+            user_details = c.fetchall()
+            role = key
+            if role not in selected_crews:
+                selected_crews[role] = []
+            selected_crews[role].append({
+                "name": user_details[0][0],
+                "userid": user_details[0][1],
+                "preferred_because": user['Preferred_because'],
+                "roleJobTitle": user_details[0][3],
+                "yoe": user_details[0][7],
+                "minRatePerDay": user_details[0][8],
+                "maxRatePerDay": user_details[0][9],
+                "location": user_details[0][10]
+            })
+    conn.close()
+    return selected_crews
+

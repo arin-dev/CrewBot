@@ -1,7 +1,7 @@
 from .CrewFunctions import *
 from langgraph.graph import END, StateGraph
 from typing import TypedDict, List, Annotated
-
+from .apikey import OPENAI_API_KEY
 # @NODES
 # description of the project
 def detailed_desc_getter(State):
@@ -63,17 +63,18 @@ def crew_selection(State):
     detailed_desc = State["detailed_desc"]
     crew_requirements = State["crew_requirements"]
     print("crew_requirements:", crew_requirements)
-    selected_crews = []
+    selected_crews_filtering = []
     for crew in crew_requirements:
         filtered_crew = filter_crew_members(crew["roleJobTitle"], 'Dubai', './DEMO_DB/crewdata.db')
         number_needed = crew["number_needed"]
         hiring_role = crew["roleJobTitle"]
 
         selected_crews_for_task = get_selected_crews(filtered_crew, number_needed, hiring_role, detailed_desc)
-        selected_crews.append({hiring_role:selected_crews_for_task})
+        selected_crews_filtering.append({hiring_role:selected_crews_for_task})
+        print("selected_crews_filtering:", selected_crews_filtering)
         # pprint("selected_crews_for_task:")
         # pprint(selected_crews_for_task, width=140, indent=10)
-    
+    selected_crews = get_selected_crew_details(selected_crews_filtering, './DEMO_DB/crewdata.db')
     return {"selected_crews" : selected_crews, "num_steps" : num_steps}
 
     
