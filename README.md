@@ -1,12 +1,16 @@
 # Film Crew Selection API
 
-This project is a Django-based API designed to manage and select crew members for film projects. It uses a combination of Django models and a custom-built graph-based workflow to process project details and select the appropriate crew members.
+This project is a Django-based API designed to manage and select crew members for film projects. It uses a combination of Django models, Django REST Framework serializers, and a custom-built graph-based workflow to process project details and select the appropriate crew members.
 
 ## Key Components
 
 ### Django Models
 
-Defined in [API/crew/models.py](file:///c%3A/Users/arind/Desktop/CrewBot/API/crew/models.py#1%2C1-1%2C1), these models represent a `CrewMember` and a `Project`. They store information such as the name, user ID, job title, services, expertise, and location of a crew member, as well as project details and selected crews.
+Defined in [API/crew/models.py](file:///c%3A/Users/arind/Desktop/CrewBot/API/crew/models.py#1%2C1-1%2C1), these models represent a [CrewMember](file:///c%3A/Users/arind/Desktop/CrewBot/README.md#9%2C133-9%2C133) and a [Project](file:///c%3A/Users/arind/Desktop/CrewBot/README.md#9%2C152-9%2C152). They store information such as the name, user ID, job title, services, expertise, and location of a crew member, as well as project details and selected crews.
+
+### Django Serializers
+
+Defined in [API/crew/serializers.py](file:///c%3A/Users/arind/Desktop/CrewBot/API/crew/serializers.py#1%2C1-1%2C1), these serializers are used to convert complex data types, like Django models, into Python native datatypes that can then be easily rendered into JSON, XML, or other content types. They also provide deserialization, validating incoming data.
 
 ### CrewGraph
 
@@ -42,3 +46,11 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
+## Technology Used
+
+- Python
+- Django
+- Django REST Framework
+- Django REST Framework Serializers
+- Langchain's LangGraph-based workflow for crew selection

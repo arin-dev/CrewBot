@@ -2,8 +2,9 @@ from .CrewFunctions import *
 from langgraph.graph import END, StateGraph
 from typing import TypedDict, List, Annotated
 from .apikey import OPENAI_API_KEY
+from crew.models import CrewMember, Project, CrewRequirement, SelectedCrew
 
-def detailed_desc_getter(State):
+def detailed_desc_getter(State, ):
     num_steps = int(State['num_steps'])
     num_steps += 1
 
@@ -46,16 +47,17 @@ def crew_selection(State):
     detailed_desc = State["detailed_desc"]
     crew_requirements = State["crew_requirements"]
     print("crew_requirements:", crew_requirements)
-    selected_crews_filtering = []
+    selected_crews = []
     for crew in crew_requirements:
-        filtered_crew = filter_crew_members(crew["roleJobTitle"], 'Dubai', './DEMO_DB/crewdata.db')
+        filtered_crew = filter_crew_members(crew["roleJobTitle"], 'Dubai')
         number_needed = crew["number_needed"]
         hiring_role = crew["roleJobTitle"]
 
         selected_crews_for_task = get_selected_crews(filtered_crew, number_needed, hiring_role, detailed_desc)
-        selected_crews_filtering.append({hiring_role:selected_crews_for_task})
-        print("selected_crews_filtering:", selected_crews_filtering)
-    selected_crews = get_selected_crew_details(selected_crews_filtering, './DEMO_DB/crewdata.db')
+        selected_crews.append({hiring_role:selected_crews_for_task})
+    print("\n\n\n ############# \n\n\n")
+    print("selected_crews:", selected_crews)
+    # selected_crews = get_selected_crew_details(selected_crews_filtering)
     return {"selected_crews" : selected_crews, "num_steps" : num_steps}
 
     
@@ -94,4 +96,4 @@ def CrewGraph(State: dict, project_detail_from_customer: str):
     inputs = {"project_detail_from_customer": project_detail_from_customer,"num_steps":0}
 
     var = app.invoke(inputs)
-    return var["selected_crews"]
+    return var

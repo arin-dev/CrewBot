@@ -1,5 +1,5 @@
 from django.db import models
-
+import uuid
 # Create your models here.
 class CrewMember(models.Model):
     name = models.CharField(max_length=100)
@@ -35,12 +35,10 @@ class SelectedCrew(models.Model):
         return self.crew_member.name
 
 class Project(models.Model):
-    project_id = models.CharField(max_length=100, unique=True)
+    project_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project_detail_from_customer = models.TextField()
     detailed_desc = models.TextField()
-    roleJobTitle = models.JSONField()
     crew_requirements = models.ManyToManyField(CrewRequirement, related_name='projects_set')
-    queries = models.JSONField()
     selected_crews = models.ManyToManyField(SelectedCrew, related_name='projects_set')
 
     def __str__(self):
