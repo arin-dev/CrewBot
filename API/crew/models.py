@@ -17,14 +17,31 @@ class CrewMember(models.Model):
     def __str__(self):
         return self.name
 
+class CrewRequirement(models.Model):
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='crew_requirements_set')
+    role = models.CharField(max_length=50)
+    location = models.CharField(max_length=50)
+    number_needed = models.IntegerField()
+    
+    def __str__(self):
+        return self.role
+
+class SelectedCrew(models.Model):
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='selected_crews_set')
+    crew_member = models.ForeignKey('CrewMember', on_delete=models.CASCADE)
+    crew_requirements = models.ForeignKey('CrewRequirement', on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.crew_member.name
+
 class Project(models.Model):
     project_id = models.CharField(max_length=100, unique=True)
     project_detail_from_customer = models.TextField()
     detailed_desc = models.TextField()
-    roleJobTitles = models.JSONField()
-    crew_requirements = models.JSONField()
+    roleJobTitle = models.JSONField()
+    crew_requirements = models.ManyToManyField(CrewRequirement, related_name='projects_set')
     queries = models.JSONField()
-    selected_crews = models.JSONField()
+    selected_crews = models.ManyToManyField(SelectedCrew, related_name='projects_set')
 
     def __str__(self):
         return self.project_detail_from_customer

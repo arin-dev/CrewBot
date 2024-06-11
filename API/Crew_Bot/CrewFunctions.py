@@ -1,19 +1,15 @@
-# OPENAI_API_KEY
 import os
 from dotenv import load_dotenv
 import sqlite3
 import json
-
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from crew.models import CrewMember, Project, CrewRequirement, SelectedCrew
 
 from .apikey import OPENAI_API_KEY
-# Initialize the ChatOpenAI instance
-# For LLM# Set your OpenAI API key
-# api_key = OPENAI_API_KEY
 
-# 
+# For LLM
 llm = ChatOpenAI(model="gpt-4o", temperature=0.2, api_key=OPENAI_API_KEY)
 # For LLM that returns json
 llm_json = ChatOpenAI(model="gpt-4o", temperature=0.2, api_key=OPENAI_API_KEY).bind(response_format={"type": "json_object"})
@@ -31,43 +27,29 @@ def get_detailed_desc(desc):
 
 
 def filter_crew_members(roleJobTitle, location, db):
-    dbname = db.split('/')[-1].split('.')[0]
-    conn = sqlite3.connect(db)
-    c = conn.cursor()
-    c.execute(f"SELECT * FROM \'{dbname}\' WHERE roleJobTitle = \'{roleJobTitle}\' AND location = \'{location}\'")
-    raw_user_details = c.fetchall()
-    conn.close()
-    print(raw_user_details)
+    raw_user_details = CrewMember.objects.filter(roleJobTitle=roleJobTitle, location=location)
     filtered_data = []
     for raw_user_detail in raw_user_details:
         filtered_data.append({
-            "name": raw_user_detail[0],
-            "userid": raw_user_detail[1],
-            "crewType": raw_user_detail[2],
-            "roleJobTitle": raw_user_detail[3],
-            "services": raw_user_detail[4].split(', '),
-            "tags": raw_user_detail[5].split(', '),
-            "expertise": raw_user_detail[6].split(', '),
-            "yoe": raw_user_detail[7],
-            "minRatePerDay": raw_user_detail[8],
-            "maxRatePerDay": raw_user_detail[9],
-            "location": raw_user_detail[10]
-        })
+        "name": raw_user_detail.name,
+        "userid": raw_user_detail.userid,
+        "crewType": raw_user_detail.crewType,
+        "roleJobTitle": raw_user_detail.roleJobTitle,
+        "services": raw_user_detail.services.split(', '),
+        "tags": raw_user_detail.tags.split(', '),
+        "expertise": raw_user_detail.expertise.split(', '),
+        "yoe": raw_user_detail.yoe,
+        "minRatePerDay": raw_user_detail.minRatePerDay,
+        "maxRatePerDay": raw_user_detail.maxRatePerDay,
+        "location": raw_user_detail.location
+    })
+    print(filtered_data)
     return filtered_data
 
 
 def get_unique_roles(db):
-    conn = sqlite3.connect(db)
-    dbname = db.split('/')[-1].split('.')[0]
-    c = conn.cursor()
-    query = f"SELECT DISTINCT roleJobTitle FROM \'{dbname}\'"
-    c.execute(query)
-    rows = c.fetchall()
-    dbname = db.split('/')[-1].split('.')[0]
-    roleJobTitles = [row[0] for row in rows]
-    conn.close()
-
-    return roleJobTitles
+    roleJobTitles = CrewMember.objects.values_list('roleJobTitle', flat=True).distinct()
+    return list(roleJobTitles)
 
 
 def get_crew_requirements(detailed_desc, roleJobTitle):
@@ -114,28 +96,24 @@ def get_selected_crews(filtered_crew, number_needed, hiring_role, detailed_desc)
     return selected_crews
 
 def get_selected_crew_details(filtered_data, db):
-    dbname = db.split('/')[-1].split('.')[0]
-    conn = sqlite3.connect(db)
-    c = conn.cursor()
     selected_crews = {}
     for dictionary in filtered_data:
         for key, val in dictionary.items():
             user = val
-            c.execute(f"SELECT * FROM \'{dbname}\' WHERE userid = \'{user['UserId']}\'")
-            user_details = c.fetchall()
-            role = key
-            if role not in selected_crews:
-                selected_crews[role] = []
-            selected_crews[role].append({
-                "name": user_details[0][0],
-                "userid": user_details[0][1],
-                "preferred_because": user['Preferred_because'],
-                "roleJobTitle": user_details[0][3],
-                "yoe": user_details[0][7],
-                "minRatePerDay": user_details[0][8],
-                "maxRatePerDay": user_details[0][9],
-                "location": user_details[0][10]
-            })
-    conn.close()
+            user_details = CrewMember.objects.filter(userid=user['UserId']).first()
+            if user_details:
+                role = key
+                if role not in selected_crews:
+                    selected_crews[role] = []
+                selected_crews[role].append({
+                    "name": user_details.name,
+                    "userid": user_details.userid,
+                    "preferred_because": user['Preferred_because'],
+                    "roleJobTitle": user_details.roleJobTitle,
+                    "yoe": user_details.yoe,
+                    "minRatePerDay": user_details.minRatePerDay,
+                    "maxRatePerDay": user_details.maxRatePerDay,
+                        "location": user_details.location
+                    })
+    print(selected_crews)
     return selected_crews
-

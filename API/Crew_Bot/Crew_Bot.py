@@ -1,6 +1,7 @@
 from typing import TypedDict, List, Annotated
 from CrewGraph import CrewGraph
 import sqlite3
+from crew.models import CrewMember, Project, CrewRequirement, SelectedCrew
 
 class State(TypedDict):
     num_steps : int
@@ -17,12 +18,7 @@ project_detail_from_customer = "A short film to be shot in Delhi with only 2 act
 output = CrewGraph(State, project_detail_from_customer)
 
 def get_crew_member_details(UserId, db):
-    dbname = db.split('/')[-1].split('.')[0]
-    conn = sqlite3.connect(db)
-    c = conn.cursor()
-    c.execute(f"SELECT * FROM \'{dbname}\' WHERE UserId = \'{UserId}\'")
-    raw_user_details = c.fetchall()
-    conn.close()
+    raw_user_details = CrewMember.objects.filter(userid=UserId)
     user_details = {
         "name": raw_user_details[0][0],
         "userid": raw_user_details[0][1],
