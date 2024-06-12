@@ -7,6 +7,12 @@ from langchain_openai import ChatOpenAI
 from crew.models import CrewMember, Project, CrewRequirement, SelectedCrew
 
 # from .apikey import OPENAI_API_KEY
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Loads the environment variables from the .env file
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 # For LLM
 llm = ChatOpenAI(model="gpt-4o", temperature=0.2, api_key=OPENAI_API_KEY)
