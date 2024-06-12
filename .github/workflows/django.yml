@@ -29,4 +29,4 @@ jobs:
       run: |
         python API/manage.py runserver
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
