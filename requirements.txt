@@ -2,3 +2,5 @@ langchain_core
 langchain_openai
 langgraph
 python-dotenv
+django
+djangorestframework
