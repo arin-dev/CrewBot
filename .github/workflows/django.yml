@@ -28,6 +28,5 @@ jobs:
     - name: Run Tests
       run: |
         python API/manage.py runserver
-    - name: Run Python Script
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
