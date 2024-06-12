@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 import sqlite3
 import json
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -7,7 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from crew.models import CrewMember, Project, CrewRequirement, SelectedCrew
 
-from .apikey import OPENAI_API_KEY
+# from .apikey import OPENAI_API_KEY
 
 # For LLM
 llm = ChatOpenAI(model="gpt-4o", temperature=0.2, api_key=OPENAI_API_KEY)
