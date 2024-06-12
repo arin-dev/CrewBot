@@ -25,7 +25,7 @@ def create_project(request):
     project_detail = request.GET.get('project_detail')
     if project_detail is None:
         return Response("Project detail is required", status=400)
-    print("\n\nproject_detail", project_detail)
+    # print("\n\nproject_detail", project_detail)
 
     class State(TypedDict):
         num_steps : int
@@ -38,7 +38,7 @@ def create_project(request):
 
     result = CrewGraph(State=State, project_detail_from_customer=project_detail)
 
-    print("\n\nresult", result)
+    # print("\n\nresult", result)
 
     new_project = Project(
     project_detail_from_customer=result["project_detail_from_customer"],
@@ -57,18 +57,17 @@ def create_project(request):
 
     selected_crews = result["selected_crews"]
 
-    print("\n\n\n ###########  \n\n\n")
-    print("\n\nselected_crews", type(selected_crews), selected_crews)
-    for crew_dict in selected_crews:
-        for role, crew in crew_dict.items():
-            print("\n\n\n ###########  \n\n\n")
-            print(crew, type(crew))
-            new_selected_crew = SelectedCrew(
-            project=new_project,
-            crew_member=CrewMember.objects.get(userid=crew["userid"]),
-            crew_requirements=CrewRequirement.objects.get(project=new_project, role=role, location=crew["location"]),
-            )
-            new_selected_crew.save()
+    # print("\n\n\n ###########  \n\n\n")
+    # print("\n\nselected_crews", type(selected_crews), selected_crews)
+    for role_dict in selected_crews:
+            for role, crews in role_dict.items():
+                for crew in crews:
+                    new_selected_crew = SelectedCrew(
+                    project=new_project,
+                    crew_member=CrewMember.objects.get(userid=crew["userid"]),
+                    crew_requirements=CrewRequirement.objects.get(project=new_project, role=role, location=crew["location"]),
+                    )
+                    new_selected_crew.save()
     new_project_id = new_project.project_id
     return Response({"message": "Request successful", "project_id": new_project_id})
 
@@ -111,6 +110,7 @@ class CrewMemberCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 # @api_view(['POST'])
 # def push_dummy_data(request):
 #     with open('crew/crewdata.json') as f:

@@ -46,7 +46,7 @@ def crew_selection(State):
 
     detailed_desc = State["detailed_desc"]
     crew_requirements = State["crew_requirements"]
-    print("crew_requirements:", crew_requirements)
+    # print("crew_requirements:", crew_requirements)
     selected_crews = []
     for crew in crew_requirements:
         filtered_crew = filter_crew_members(crew["roleJobTitle"], 'Dubai')
@@ -55,19 +55,22 @@ def crew_selection(State):
 
         selected_crews_for_task = get_selected_crews(filtered_crew, number_needed, hiring_role, detailed_desc)
         selected_crews.append({hiring_role:selected_crews_for_task})
-    print("\n\n\n ############# \n\n\n")
-    print("selected_crews:", selected_crews)
-    # selected_crews = get_selected_crew_details(selected_crews_filtering)
+    # print("\n\n\n ############# \n\n\n")
+    # print("selected_crews:", selected_crews)
+
+
+    ## selected_crews = get_selected_crew_details(selected_crews_filtering)
     return {"selected_crews" : selected_crews, "num_steps" : num_steps}
 
     
 def state_printer(state):
-    print("num_steps:", state["num_steps"])
-    print("project_detail_from_customer:", state["project_detail_from_customer"])
-    print("detailed_desc:", state["detailed_desc"])
-    print("roleJobTitles:", state["roleJobTitles"])
-    print("queries:", state["queries"])
-    print("selected_crews:", state["selected_crews"])
+    # print("num_steps:", state["num_steps"])
+    # print("project_detail_from_customer:", state["project_detail_from_customer"])
+    # print("detailed_desc:", state["detailed_desc"])
+    # print("roleJobTitles:", state["roleJobTitles"])
+    # print("queries:", state["queries"])
+    # print("selected_crews:", state["selected_crews"])
+    print("Project is finished!")
     return
 
 

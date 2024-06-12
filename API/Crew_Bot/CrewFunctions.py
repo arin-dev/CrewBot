@@ -43,7 +43,7 @@ def filter_crew_members(roleJobTitle, location):
         "maxRatePerDay": raw_user_detail.maxRatePerDay,
         "location": raw_user_detail.location
     })
-    print(filtered_data)
+    # print(filtered_data)
     return filtered_data
 
 
@@ -86,11 +86,12 @@ def get_queries(crew_requirements):
 
 def get_selected_crews(filtered_crew, number_needed, hiring_role, detailed_desc):
     
-    print("\n\n\n ############## THIS IS REAL FILTERED CREW \n\n\n\n")
-    print("filtered_crews", filtered_crew)
-    print("\n\n\n ############## \n\n\n\n")
+    # print("\n\n\n ############## THIS IS REAL FILTERED CREW \n\n\n\n")
+    # print("number_needed", number_needed)
+    # print("filtered_crews", filtered_crew)
+    # print("\n\n\n ############## \n\n\n\n")
 
-    prompt_crew_selection = "You are a HR in my firm and you have to select the best possible crew. Your subordinates will provide you with the project detail, the crew that match the criteria for that particular job title, and the number of the crew we need to hire for that project. Now you need to select the best possible crew for that particular role and the reason why you preferred that particular person. Remember, year of experience should not be the only factor. Make sure preferred member can work well in the project. Output should be in JSON format which should follow this: {'userid': , 'preferred_because', 'location'}. Only output JSON. You don't need to put anything extra as your output will be directly fed to a function, so just output JSON. Take extra precautions that same person is not added multiple times. "
+    prompt_crew_selection = "You are a HR in my firm and you have to select the best possible crew. Your subordinates will provide you with the project detail, the crew that match the criteria for that particular job title, and the number of the crew we need to hire for that project. Now you need to select the best possible crews for that particular role and the reason why you preferred those particular person.Make sure provided number of crews are selected. Remember, year of experience should not be the only factor. Make sure preferred member can work well in the project. Output should be in JSON format which should follow this: { {'userid': , 'preferred_because', 'location'} }."
     messages = [
         ("system", prompt_crew_selection),
         ("user", f"Following is the list of available members for the project: {filtered_crew}, you need to hire {number_needed} members, for the role of {hiring_role} for this project: {detailed_desc}"),
@@ -98,9 +99,13 @@ def get_selected_crews(filtered_crew, number_needed, hiring_role, detailed_desc)
 
     response = llm_json.invoke(messages)
     selected_crews = json.loads(response.content)
-    print("\n\n\n ############## THIS IS REAL SELECTED CREW \n\n\n\n")
-    print("selected_crews", selected_crews)
-    print("\n\n\n ############## \n\n\n\n")
+    # print("\n\n\n ############## THIS IS REAL SELECTED CREW \n\n\n\n")
+    # print("selected_crews", selected_crews)
+    # print("\n\n\n ############## \n\n\n\n")
+    try : 
+        selected_crews = selected_crews["selected_crew"]
+    except : 
+        selected_crews = selected_crews
     return selected_crews
 
 def get_selected_crew_details(filtered_data):
@@ -123,5 +128,5 @@ def get_selected_crew_details(filtered_data):
                     "maxRatePerDay": user_details.maxRatePerDay,
                         "location": user_details.location
                     })
-    print(selected_crews)
+    # print(selected_crews)
     return selected_crews
