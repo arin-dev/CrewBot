@@ -23,5 +23,5 @@ class SelectedCrewSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ['project_id', 'project_detail_from_customer', 'detailed_desc']
+        fields = ['project_id', 'project_name', 'description']
         depth = 1

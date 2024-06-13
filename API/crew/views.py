@@ -1,71 +1,86 @@
+import os
+import json
+from typing import TypedDict, List
+
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-# Create your views here.
-import os
 
 from .serializers import CrewMemberSerializer, CrewRequirementSerializer, SelectedCrewSerializer, ProjectSerializer
 from crew.models import CrewMember, Project, CrewRequirement, SelectedCrew
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 from Crew_Bot.CrewGraph import CrewGraph
 from .models import CrewMember
 
-from typing import TypedDict, List
+from .APIFunctions import *
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 
 @api_view(['POST'])
 def create_project(request):
-    project_detail = request.GET.get('project_detail')
-    if project_detail is None:
-        return Response("Project detail is required", status=400)
-    # print("\n\nproject_detail", project_detail)
 
-    class State(TypedDict):
-        num_steps : int
-        project_detail_from_customer : str
-        detailed_desc : str
-        roleJobTitles : List[str]
-        crew_requirements : List[dict]
-        queries : List[str]
-        selected_crews : List[dict]
+    project_state = get_form_data(request)
+    print("project_state", project_state)
+    result = CrewGraph(State=State, state=project_state)
 
-    result = CrewGraph(State=State, project_detail_from_customer=project_detail)
-
-    # print("\n\nresult", result)
 
     new_project = Project(
-    project_detail_from_customer=result["project_detail_from_customer"],
-    detailed_desc=result["detailed_desc"],)
+    project_name=result["project_name"],
+    content_type=result["content_type"],
+    budget=result["budget"],
+    description=result["description"],
+    additional_details=result["additional_details"],
+    locations=result["locations"],
+    ai_suggestions=result["ai_suggestions"],)
     new_project.save()
     
     crew_req = result["crew_requirements"]
+    print("\n\n\n ########### crew_req ########### ")
+    print("crew_req", crew_req)
     for crew in crew_req:
         new_crew = CrewRequirement(
             project=new_project,
-            role=crew["roleJobTitle"], 
+            role=crew["role"], 
             number_needed=crew["number_needed"],
             location=crew["location"],
         )
         new_crew.save()
 
     selected_crews = result["selected_crews"]
-
-    # print("\n\n\n ###########  \n\n\n")
-    # print("\n\nselected_crews", type(selected_crews), selected_crews)
+    print("\n\n\n ###########  \n\n\n")
+    print("\n\nselected_crews", type(selected_crews), selected_crews)
     for role_dict in selected_crews:
-            for role, crews in role_dict.items():
+        print("\n\n\n ########### role_dict.items() #######  \n\n\n")
+        print("\n\n role_dict", type(role_dict), role_dict.items())
+        for role, crews in role_dict.items():
+            print("\n\n\n ########### role and crews ########### ")
+            print("role", role, "crews", crews, "type", type(crews))
+            print("length", len(crews))
+            if isinstance(crews, list):
                 for crew in crews:
+                    print("\n\n\n ########### crew ########### ")
+                    print("crew[userid]", crew["userid"])
                     new_selected_crew = SelectedCrew(
                     project=new_project,
                     crew_member=CrewMember.objects.get(userid=crew["userid"]),
                     crew_requirements=CrewRequirement.objects.get(project=new_project, role=role, location=crew["location"]),
                     )
                     new_selected_crew.save()
+            else:
+                print("\n\n\n ########### crews ########### ")
+                print("crews[userid]", crews["userid"])
+                new_selected_crew = SelectedCrew(
+                project=new_project,
+                crew_member=CrewMember.objects.get(userid=crews["userid"]),
+                crew_requirements=CrewRequirement.objects.get(project=new_project, role=role, location=crews["location"]),
+                )
+                new_selected_crew.save()
+                
     new_project_id = new_project.project_id
     return Response({"message": "Request successful", "project_id": new_project_id})
+    # return Response({"message": "Request successful"})
 
     
 
@@ -98,6 +113,12 @@ def crew_member(request):
     serializer = CrewMemberSerializer(crew_member, many=True)
     return Response(serializer.data, status=200)
 
+@api_view(['GET'])
+def list_projects(request):
+    projects = Project.objects.all()
+    serializer = ProjectSerializer(projects, many=True)
+    return Response(serializer.data, status=200)
+
 
 class CrewMemberCreateView(APIView):
     def post(self, request):
@@ -107,26 +128,31 @@ class CrewMemberCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(['POST'])
-# def push_dummy_data(request):
-#     with open('crew/crewdata.json') as f:
-#         data = json.load(f)
+@api_view(['POST'])
+def push_dummy_data(request):
+    print("Testing if dummy data present")
 
-#     crew_members = []
-#     for crew_member in data:
-#         crew_members.append(CrewMember(
-#             name=crew_member["name"], 
-#             userid=crew_member["userid"], 
-#             crewType=crew_member["crewType"], 
-#             roleJobTitle=crew_member["roleJobTitle"], 
-#             services=','.join(crew_member["services"]), 
-#             tags=','.join(crew_member["tags"]), 
-#             expertise=','.join(crew_member["expertise"]), 
-#             yoe=crew_member["yoe"], 
-#             minRatePerDay=crew_member["minRatePerDay"], 
-#             maxRatePerDay=crew_member["maxRatePerDay"], 
-#             location=crew_member["location"]
-#         ))
-#     CrewMember.objects.bulk_create(crew_members)
+    print("Starting pushing dummy data")
+    with open('crew/crewdata.json') as f:
+        data = json.load(f)
 
-#     return Response("Data pushed successfully", status=200)
+    crew_members = []
+    for crew_member in data:
+        # Check if a CrewMember with the same userid already exists
+        if not CrewMember.objects.filter(userid=crew_member["userid"]).exists():
+            crew_members.append(CrewMember(
+                name=crew_member["name"], 
+                userid=crew_member["userid"], 
+                crewType=crew_member["crewType"], 
+                role=crew_member["roleJobTitle"], 
+                services=','.join(crew_member["services"]), 
+                tags=','.join(crew_member["tags"]), 
+                expertise=','.join(crew_member["expertise"]), 
+                yoe=crew_member["yoe"], 
+                minRatePerDay=crew_member["minRatePerDay"], 
+                maxRatePerDay=crew_member["maxRatePerDay"], 
+                location=crew_member["location"]
+            ))
+    CrewMember.objects.bulk_create(crew_members)
+
+    return Response({"message": "Data pushed successfully"}, status=200)
