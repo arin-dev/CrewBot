@@ -1,14 +1,13 @@
-from django.urls import path, include
 from . import views
-from .views import CrewMemberCreateView
+from django.urls import path
 
 urlpatterns = [
-    path('list_projects/', views.list_projects, name='list_projects'),
-    path('single_project/', views.single_project, name='list_project'),
-    path('create_project/', views.create_project),
-    path('crew_requirement/', views.crew_requirement, name='crew_requirement'),
-    path('selected_crew/', views.selected_crew, name='selected_crew'),
-    path('crew_member/', views.crew_member, name='crew_member'),
-    path('addcrewmember/', CrewMemberCreateView.as_view(), name='crewmember-create'),
-    path('push_dummy_data/', views.push_dummy_data),
+    path('list-projects/', views.list_projects, name='list_projects'),
+    path('project-details/', views.project_details, name='project_details'),
+    path('create-project/', views.create_project),
+    path('view-crew-requirement/', views.crew_requirement, name='crew_requirement'),
+    path('view-selected-crew/', views.selected_crew, name='selected_crew'),
+    path('view-crew-member/', views.crew_member, name='crew_member'),
+    path('add-crew-member/', views.CrewMemberCreateView.as_view(), name='crewmember-create'),
+    # path('push_dummy_data/', views.push_dummy_data),
 ]
