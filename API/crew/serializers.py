@@ -32,4 +32,4 @@ class ProjectDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = '__all__'
+        exclude = ['selected_crews', 'crew_requirements']
