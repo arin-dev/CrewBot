@@ -1,16 +1,5 @@
 from typing import TypedDict, List
 
-from rest_framework.views import APIView
-from rest_framework.decorators import api_view
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from .serializers import CrewMemberSerializer, CrewRequirementSerializer, SelectedCrewSerializer, ProjectSerializer
-from crew.models import CrewMember, Project, CrewRequirement, SelectedCrew
-from Crew_Bot.CrewGraph import CrewGraph
-from .models import CrewMember
-
 class State(TypedDict):
     project_name : str
     content_type : str
