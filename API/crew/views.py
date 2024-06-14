@@ -110,18 +110,54 @@ def crew_member(request):
     serializer = CrewMemberSerializer(crew_member, many=True)
     return Response(serializer.data, status=200)
 
+
 @api_view(['GET'])
 def list_projects(request):
     projects = Project.objects.all()
     serializer = ProjectsSerializer(projects, many=True)
     return Response(serializer.data, status=200)
 
+
+def transform_crew_data(input_data):
+    transformed_data = []
+
+    for crew in input_data['selected_crews_set']:
+        member = crew['crew_member']
+        role = member['role']
+        user_details = {
+            "name": member["name"],
+            "userid": member["userid"],
+            "crew_type": member["crewType"],
+            "roleJobTitle": member["role"],
+            "services": member["services"].split(","),
+            "tags": member["tags"].split(","),
+            "expertise": member["expertise"].split(","),
+            "yoe": member["yoe"],
+            "minRatePerDay": float(member["minRatePerDay"]),
+            "maxRatePerDay": float(member["maxRatePerDay"]),
+            "location": member["location"]
+        }
+        
+        preferred_because = f"{member['name']} has extensive experience in {', '.join(user_details['expertise'])}. They are based in {member['location']} and their rate fits within the budget."
+        
+        transformed_data.append({
+            role: {
+                "UserId": member["userid"],
+                "Preferred_because": preferred_because,
+                "user_details": user_details
+            }
+        })
+
+    return transformed_data
+
 @api_view(['GET'])
 def project_details(request):
     project_id = request.GET.get('project_id')
     project = Project.objects.get(project_id=uuid.UUID(project_id))
-    response = ProjectDetailsSerializer(project)
-    return Response(response.data, status=200)
+    serializer = ProjectDetailsSerializer(project)
+    response = transform_crew_data(serializer.data)
+    return Response(response, status=200)
+
 
 class CrewMemberCreateView(APIView):
     def post(self, request):
@@ -130,6 +166,7 @@ class CrewMemberCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # @api_view(['POST'])
 # def push_dummy_data(request):
