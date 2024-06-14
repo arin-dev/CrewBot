@@ -4,6 +4,7 @@ from .views import CrewMemberCreateView
 
 urlpatterns = [
     path('list_projects/', views.list_projects, name='list_projects'),
+    path('single_project/', views.single_project, name='list_project'),
     path('create_project/', views.create_project),
     path('crew_requirement/', views.crew_requirement, name='crew_requirement'),
     path('selected_crew/', views.selected_crew, name='selected_crew'),

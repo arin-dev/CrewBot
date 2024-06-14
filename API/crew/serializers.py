@@ -25,3 +25,11 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['project_id', 'project_name', 'description']
         depth = 1
+
+class SingleProjectSerializer(serializers.ModelSerializer):
+    crew_requirements = CrewRequirementSerializer(many=True, read_only=True)
+    selected_crews = SelectedCrewSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Project
+        fields = '__all__'

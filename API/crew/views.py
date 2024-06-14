@@ -1,6 +1,7 @@
 import os
 import json
 from typing import TypedDict, List
+import uuid
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -8,7 +9,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import CrewMemberSerializer, CrewRequirementSerializer, SelectedCrewSerializer, ProjectSerializer
+from .serializers import CrewMemberSerializer, CrewRequirementSerializer, SelectedCrewSerializer, ProjectSerializer, SingleProjectSerializer
 from crew.models import CrewMember, Project, CrewRequirement, SelectedCrew
 from Crew_Bot.CrewGraph import CrewGraph
 from .models import CrewMember
@@ -118,6 +119,14 @@ def list_projects(request):
     projects = Project.objects.all()
     serializer = ProjectSerializer(projects, many=True)
     return Response(serializer.data, status=200)
+
+@api_view(['GET'])
+def single_project(request):
+    project_id = request.GET.get('project_id')
+    project = Project.objects.get(project_id=uuid.UUID(project_id))
+    print(project)
+    response = SingleProjectSerializer(project)
+    return Response(response.data, status=200)
 
 
 class CrewMemberCreateView(APIView):
