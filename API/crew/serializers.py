@@ -7,6 +7,7 @@ class CrewMemberSerializer(serializers.ModelSerializer):
         model = CrewMember
         exclude = ['next_available_date']
         depth = 1
+        lookup_field = 'id'
 
 class CrewRequirementSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,3 +34,4 @@ class ProjectDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         exclude = ['selected_crews', 'crew_requirements']
+        depth = 1

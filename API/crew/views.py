@@ -18,9 +18,7 @@ from .APIFunctions import *
 
 @api_view(['POST'])
 def create_project(request):
-
     project_state = get_form_data(request)
-    print("project_state", project_state)
     result = CrewGraph(State=State, state=project_state)
 
     new_project = Project(
@@ -80,7 +78,6 @@ def create_project(request):
     # return Response({"message": "Request successful"})
 
     
-
 @api_view(['GET'])
 def crew_requirement(request):
     project_id = request.GET.get('project_id')
@@ -102,12 +99,22 @@ def selected_crew(request):
 
 
 @api_view(['GET'])
+def list_crew_memebers(request):
+    users = CrewMember.objects.all()
+    serializer = CrewMemberSerializer(users, many=True)
+    return Response(serializer.data, status=200) 
+
+
+@api_view(['GET'])
 def crew_member(request):
-    userid = request.GET.get('userid')
-    if userid is None:
-        return Response("userid is required", status=400)
-    crew_member = CrewMember.objects.filter(userid=userid)
-    serializer = CrewMemberSerializer(crew_member, many=True)
+    crew_id = request.GET.get('id')
+    if crew_id is None:
+        return Response("id is required", status=400)
+    try:
+        crew_member = CrewMember.objects.get(id=crew_id)
+    except CrewMember.DoesNotExist:
+        return Response("Crew member not found", status=404)
+    serializer = CrewMemberSerializer(crew_member)
     return Response(serializer.data, status=200)
 
 
@@ -138,12 +145,24 @@ def transform_crew_data(input_data):
     return final_output
 
 @api_view(['GET'])
-def project_details(request):
+def project_crew_details(request):
     project_id = request.GET.get('project_id')
+    if project_id is None:
+        return Response("Project id is required", status=400)
     project = Project.objects.get(project_id=uuid.UUID(project_id))
     serializer = ProjectDetailsSerializer(project)
     response = transform_crew_data(serializer.data)
     return Response(response, status=200)
+
+
+@api_view(['GET'])
+def complete_project_details(request):
+    project_id = request.GET.get('project_id')
+    if project_id is None:
+        return Response("Project id is required", status=400)
+    project = Project.objects.get(project_id=uuid.UUID(project_id))
+    serializer = ProjectDetailsSerializer(project)
+    return Response(serializer.data, status=200)
 
 
 class CrewMemberCreateView(APIView):
@@ -153,7 +172,6 @@ class CrewMemberCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 # @api_view(['POST'])
 # def push_dummy_data(request):
