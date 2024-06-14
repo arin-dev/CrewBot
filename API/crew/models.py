@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 import uuid
-# Create your models here.
+
 class CrewMember(models.Model):
     name = models.CharField(max_length=100)
     userid = models.EmailField(unique=True)
@@ -47,6 +47,12 @@ class Project(models.Model):
     ai_suggestions = models.BooleanField()
     crew_requirements = models.ManyToManyField(CrewRequirement, related_name='projects_set')
     selected_crews = models.ManyToManyField(SelectedCrew, related_name='projects_set')
+
+    def delete(self, *args, **kwargs):
+        self.crew_requirements.all().delete()
+        self.selected_crews.all().delete()
+
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return self.project_name

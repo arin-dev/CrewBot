@@ -37,8 +37,8 @@ def create_project(request):
     new_project.save()
     
     crew_req = result["crew_requirements"]
-    print("\n\n\n ########### crew_req ########### ")
-    print("crew_req", crew_req)
+    # print("\n\n\n ########### crew_req ########### ")
+    # print("crew_req", crew_req)
     for crew in crew_req:
         new_crew = CrewRequirement(
             project=new_project,
@@ -49,19 +49,19 @@ def create_project(request):
         new_crew.save()
 
     selected_crews = result["selected_crews"]
-    print("\n\n\n ###########  \n\n\n")
-    print("\n\nselected_crews", type(selected_crews), selected_crews)
+    # print("\n\n\n ###########  \n\n\n")
+    # print("\n\nselected_crews", type(selected_crews), selected_crews)
     for role_dict in selected_crews:
-        print("\n\n\n ########### role_dict.items() #######  \n\n\n")
-        print("\n\n role_dict", type(role_dict), role_dict.items())
+        # print("\n\n\n ########### role_dict.items() #######  \n\n\n")
+        # print("\n\n role_dict", type(role_dict), role_dict.items())
         for role, crews in role_dict.items():
-            print("\n\n\n ########### role and crews ########### ")
-            print("role", role, "crews", crews, "type", type(crews))
-            print("length", len(crews))
+            # print("\n\n\n ########### role and crews ########### ")
+            # print("role", role, "crews", crews, "type", type(crews))
+            # print("length", len(crews))
             if isinstance(crews, list):
                 for crew in crews:
-                    print("\n\n\n ########### crew ########### ")
-                    print("crew[userid]", crew["userid"])
+                    # print("\n\n\n ########### crew ########### ")
+                    # print("crew[userid]", crew["userid"])
                     new_selected_crew = SelectedCrew(
                     project=new_project,
                     crew_member=CrewMember.objects.get(userid=crew["userid"]),
@@ -69,8 +69,8 @@ def create_project(request):
                     )
                     new_selected_crew.save()
             else:
-                print("\n\n\n ########### crews ########### ")
-                print("crews[userid]", crews["userid"])
+                # print("\n\n\n ########### crews ########### ")
+                # print("crews[userid]", crews["userid"])
                 new_selected_crew = SelectedCrew(
                 project=new_project,
                 crew_member=CrewMember.objects.get(userid=crews["userid"]),
@@ -106,10 +106,10 @@ def selected_crew(request):
 
 @api_view(['GET'])
 def crew_member(request):
-    project_id = request.GET.get('project_id')
-    if project_id is None:
-        return Response("Project id is required", status=400)
-    crew_member = CrewMember.objects.filter(project_id=project_id)
+    userid = request.GET.get('userid')
+    if userid is None:
+        return Response("userid is required", status=400)
+    crew_member = CrewMember.objects.filter(userid=userid)
     serializer = CrewMemberSerializer(crew_member, many=True)
     return Response(serializer.data, status=200)
 
