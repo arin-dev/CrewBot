@@ -27,8 +27,8 @@ class ProjectsSerializer(serializers.ModelSerializer):
         depth = 1
 
 class ProjectDetailsSerializer(serializers.ModelSerializer):
-    crew_requirements = CrewRequirementSerializer(many=True, read_only=True)
-    selected_crews = SelectedCrewSerializer(many=True, read_only=True)
+    crew_requirements_set = CrewRequirementSerializer(many=True, read_only=True)
+    selected_crews_set = SelectedCrewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Project
