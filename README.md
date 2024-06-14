@@ -39,6 +39,10 @@ Defined in [API/Crew_Bot/Crew_Bot.py](file:///c%3A/Users/arind/Desktop/CrewBot/A
 
 Send a POST request to the API endpoint with the project details. The response will be a JSON object containing the selected crews for the project.
 
+## Documentation
+
+For more detailed information, refer to the project documentation [here](https://docs.google.com/document/d/1PJXq1cRY3uAFNwKUU1g3VaOTdJM4vW2LZk8u0feZr10/edit).
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
